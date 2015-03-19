@@ -3,7 +3,7 @@ import random
 import sqlite3
 import csv
 from collections import Counter
-from scraper import Scraper
+from scraper import Scraper, WikiScraper
 from db import DB
 
 parser = argparse.ArgumentParser(description='Domain-specific PageRank')
@@ -56,6 +56,8 @@ class PageRanker():
         for _ in range(num_iterations):
             self.db.update_ranks()
 
+    def get_top_ranked(self, num_to_get=None):
+        return self.db.get_urls_ordered_by_rank(num_to_get)
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -66,3 +68,4 @@ if __name__ == '__main__':
     pageranker = PageRanker(scraper, args.start, args.default, DB())
     pageranker.crawl(args.transitions)
     pageranker.update_ranks()
+    print(pageranker.get_top_ranked(10))

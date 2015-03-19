@@ -31,6 +31,7 @@ class Scraper():
         """Return list of valid links on the given url."""
         html = urlopen(url).read()
         soup = BeautifulSoup(html)
+        valid_links = []
         for tag in soup.findAll('a', href=True):
             parsed_href = urlparse(tag['href'])
             if parsed_href.netloc:

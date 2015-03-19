@@ -61,7 +61,6 @@ class DB:
         session = self.Session()
         try:
             for page_link in session.query(PageLink).all():
-                print(page_link)
                 page_link.pagerank_contrib = page_link.new_pagerank_contrib()
             for page, new_rank in session.query(Page,
                     func.sum(PageLink.pagerank_contrib)).filter(Page.id ==
@@ -73,3 +72,15 @@ class DB:
             print(e)
             return False
         return True
+
+    def get_urls_ordered_by_rank(self, limit):
+        """
+        Get pages ordered by rank (descending).
+        """
+        session = self.Session()
+        if not limit:
+            pages = session.query(Page.url).order_by(Page.rank.desc()).all()
+        else:
+            pages = (session.query(Page.url).order_by(Page.rank.desc()).
+                    limit(limit).all())
+        return pages
