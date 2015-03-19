@@ -29,12 +29,23 @@ class Scraper():
 
     def get_valid_links(self, url):
         """Return list of valid links on the given url."""
-        # TODO(smilli): figure out what to do with self-links
-        valid_links = []
         html = urlopen(url).read()
         soup = BeautifulSoup(html)
         for tag in soup.findAll('a', href=True):
-            new_url = urljoin(url, tag['href'])
-            if self.is_url_valid(new_url):
-                valid_links.append(new_url)
+            parsed_href = urlparse(tag['href'])
+            if parsed_href.netloc:
+                href = ''.join(parsed_href[:-1])
+            else:
+                href = urljoin(url, ''.join(parsed_href[:-1]))
+            if href != url and self.is_url_valid(href):
+                valid_links.append(href)
         return valid_links
+
+class WikiScraper(Scraper):
+
+    def is_url_valid(self, url):
+        """Check if an absolute url is valid"""
+        if ':' in urlparse(url).path:
+            return False
+        stripped = self.strip_scheme(url)
+        return stripped.startswith(self.domain)
