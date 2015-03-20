@@ -17,10 +17,9 @@ parser.add_argument('-u', '--default', help='The url that the search will '
     'default to when it gets to a dead end. Use if you have a url that '
     'provides a random page on the domain. '
     'Ex: http://en.wikipedia.org/wiki/Special:Random')
-parser.add_argument('-f', '--sqlite-file', help='File to use for storing nodes '
-    'and outgoing links')
-parser.add_argument('-s', '--start', help='The url to start at.',
-        type=int)
+parser.add_argument('-c', '--db', help='Database connection to store pages in '
+    'Ex: postgresql://localhost/pagerank')
+parser.add_argument('-s', '--start', help='The url to start at.')
 
 
 class PageRanker():
@@ -33,7 +32,7 @@ class PageRanker():
 
     def crawl(self, num_transitions):
         if self.start:
-            queue = [start]
+            queue = [self.start]
         else:
             queue = []
         i = 0
@@ -42,8 +41,10 @@ class PageRanker():
                 queue += self.scraper.get_valid_links(self.default)
             else:
                 link = queue.pop(0)
+                print(link)
                 outgoing = self.scraper.get_valid_links(link)
                 saved = self.db.create_page(url=link, rank=1, links=outgoing)
+                print(link, outgoing, saved)
                 if not saved:
                     continue
                 queue += outgoing
@@ -64,8 +65,8 @@ if __name__ == '__main__':
     if not (args.start or args.default):
         parser.error('You must provide a start url (-s/--start) if you don\'t '
             'provide a default url (-u/--default).')
-    scraper = WikiScraper(args.domain) # can change to Scraper for general usage
-    pageranker = PageRanker(scraper, args.start, args.default, DB())
+    scraper = Scraper(args.domain)
+    pageranker = PageRanker(scraper, args.start, args.default, DB(args.db))
     pageranker.crawl(args.transitions)
-    pageranker.update_ranks()
+    pageranker.update_ranks(25)
     print(pageranker.get_top_ranked(10))

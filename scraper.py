@@ -29,18 +29,20 @@ class Scraper():
 
     def get_valid_links(self, url):
         """Return list of valid links on the given url."""
-        html = urlopen(url).read()
-        soup = BeautifulSoup(html)
         valid_links = []
-        for tag in soup.findAll('a', href=True):
-            parsed_href = urlparse(tag['href'])
-            if parsed_href.netloc:
-                href = ''.join(parsed_href[:-1])
-            else:
-                href = urljoin(url, ''.join(parsed_href[:-1]))
-            if href != url and self.is_url_valid(href):
-                valid_links.append(href)
-        return valid_links
+        try:
+            html = urlopen(url).read()
+            soup = BeautifulSoup(html)
+            for tag in soup.findAll('a', href=True):
+                parsed_href = urlparse(tag['href'])
+                if parsed_href.netloc:
+                    href = ''.join(parsed_href[:-1])
+                else:
+                    href = urljoin(url, ''.join(parsed_href[:-1]))
+                if href != url and self.is_url_valid(href):
+                    valid_links.append(href)
+        finally:
+            return valid_links
 
 class WikiScraper(Scraper):
 
