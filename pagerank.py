@@ -7,9 +7,9 @@ from scraper import Scraper, WikiScraper
 from db import DB
 
 parser = argparse.ArgumentParser(description='Domain-specific PageRank')
-parser.add_argument('-d', '--domain', help='The domain that the search should '
-    'be restricted to.  All urls prefixed by this will be visited. '
-    '"http://" or "www" is not necessary.  Ex: "en.wikipedia.org/wiki/"',
+parser.add_argument('-d', '--domain', help='The domain/path that the search '
+    'should be restricted to.  Only urls prefixed by this will be visited. '
+    'Ex: "http://en.wikipedia.org/wiki/"',
     required=True)
 parser.add_argument('-t', '--transitions', help='The number of transitions or '
     'pages to visit.  Ex: 10000', type=int, required=True)
